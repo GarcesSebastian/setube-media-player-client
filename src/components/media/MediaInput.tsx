@@ -81,6 +81,10 @@ export default function MediaInput({ onSelect, hasSelection, onReset }: MediaInp
             const data = await searchMedia(searchTerm);
             setResults(data);
             db.addSearch(searchTerm, data).catch(console.error);
+
+            if (hasSelection) {
+                onReset();
+            }
         } catch (error) {
             console.error("Search error:", error);
         } finally {
