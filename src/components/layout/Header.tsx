@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { History } from "lucide-react";
 
 interface HeaderProps {
     onHistoryClick: () => void;
+    onLogoClick: () => void;
 }
 
-export default function Header({ onHistoryClick }: HeaderProps) {
+export default function Header({ onHistoryClick, onLogoClick }: HeaderProps) {
     const currentYear = new Date().getFullYear();
 
     return (
@@ -20,9 +20,12 @@ export default function Header({ onHistoryClick }: HeaderProps) {
         >
             <nav className="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-4 md:gap-6">
-                    <Link href="/" className="text-lg md:text-xl font-black tracking-tighter text-white">
+                    <button
+                        onClick={onLogoClick}
+                        className="text-lg md:text-xl font-black tracking-tighter text-white hover:text-accent transition-colors"
+                    >
                         SETUBE
-                    </Link>
+                    </button>
                     <div className="hidden md:flex items-center gap-4 border-l border-white/10 pl-6">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">
                             © {currentYear} Extracción de medios de alta fidelidad

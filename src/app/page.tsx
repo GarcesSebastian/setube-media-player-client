@@ -86,9 +86,18 @@ function HomeContent() {
     }).catch(console.error);
   };
 
+  const handleFullReset = () => {
+    setSelectedResult(null);
+    setMediaInfo(null);
+    router.replace("/", { scroll: false });
+  };
+
   return (
     <main className="min-h-screen relative bg-[#050505] text-white">
-      <Header onHistoryClick={() => setIsHistoryOpen(true)} />
+      <Header
+        onHistoryClick={() => setIsHistoryOpen(true)}
+        onLogoClick={handleFullReset}
+      />
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 
       <div className="pt-20">

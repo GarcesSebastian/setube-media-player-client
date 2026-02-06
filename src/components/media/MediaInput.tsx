@@ -59,9 +59,10 @@ export default function MediaInput({ onSelect, hasSelection, onReset }: MediaInp
 
     useEffect(() => {
         const q = searchParams.get("q");
-        if (q && q !== query) {
-            setQuery(q);
-            performSearch(q);
+        if (q !== query) {
+            setQuery(q || "");
+            if (q) performSearch(q);
+            else setResults([]);
         }
     }, [searchParams]);
 
