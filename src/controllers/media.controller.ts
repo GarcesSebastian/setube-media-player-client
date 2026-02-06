@@ -38,3 +38,7 @@ export const searchMedia = async (query: string): Promise<MediaResult[]> => {
 export const getMediaInfo = async (url: string): Promise<MediaInfo> => {
     return FetchUtils.apiCall<MediaInfo>(`/media/info?url=${encodeURIComponent(url)}`);
 };
+
+export const getMediaFormats = async (url: string): Promise<{ formats: any[] }> => {
+    return FetchUtils.apiCall<{ formats: any[] }>(`/media/formats?url=${encodeURIComponent(url)}`);
+};

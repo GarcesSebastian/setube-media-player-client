@@ -45,7 +45,7 @@ export default function HistorySidebar({ isOpen, onClose }: HistorySidebarProps)
     const handleJumpToSearch = (query: string) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set("q", query);
-        params.delete("v"); // Reset video selection
+        params.delete("v");
         router.push(`?${params.toString()}`);
         onClose();
     };
