@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 import { db } from "@/utils/database.utils";
 
 export default function Home() {
-  const [selectedResult, setSelectedResult] = useState<MediaResult | null>(null);
+  const [selectedResult, setSelectedResult] = useState<MediaResult | any | null>(null);
   const [mediaInfo, setMediaInfo] = useState<MediaInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -18,25 +18,43 @@ export default function Home() {
     db.init().catch(console.error);
   }, []);
 
-  const handleSelect = async (item: MediaResult) => {
+  const handleSelect = async (item: MediaResult | any) => {
     setSelectedResult(item);
     setMediaInfo(null);
     setIsLoading(true);
 
     try {
       const info = await getMediaInfo(item.url);
-      setMediaInfo(info);
+
+      const combinedInfo = {
+        ...item,
+        ...info,
+        id: info.id || item.video_id,
+        author: info.author || item.author
+      };
+
+      setMediaInfo(combinedInfo);
 
       db.addMetadata({
-        videoId: info.id,
-        url: info.url,
-        title: info.title,
-        duration: info.duration,
-        thumbnail: info.thumbnail,
-        author: info.author,
+        videoId: combinedInfo.id,
+        url: combinedInfo.url,
+        title: combinedInfo.title,
+        duration: combinedInfo.duration,
+        thumbnail: combinedInfo.thumbnail,
+        author: combinedInfo.author,
       }).catch(console.error);
     } catch (error) {
       console.error("Error fetching media info:", error);
+      if (item.video_id) {
+        setMediaInfo({
+          ...item,
+          id: item.video_id,
+          formats: [
+            { format_id: "high", ext: "m4a", resolution: "High (256kbps)" },
+            { format_id: "1080", ext: "mp4", resolution: "1080p" }
+          ]
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +62,6 @@ export default function Home() {
 
   const handleConversionComplete = (format: string, quality: string) => {
     if (!mediaInfo) return;
-
     db.addConversion({
       videoId: mediaInfo.id,
       title: mediaInfo.title,
@@ -54,7 +71,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen relative pb-20">
+    <main className="min-h-screen relative bg-[#050505] text-white">
       <Header onHistoryClick={() => setIsHistoryOpen(true)} />
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 
@@ -62,7 +79,7 @@ export default function Home() {
         <MediaInput onSelect={handleSelect} hasSelection={!!selectedResult} />
 
         <AnimatePresence mode="wait">
-          {isLoading && (
+          {isLoading && !mediaInfo && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -79,13 +96,14 @@ export default function Home() {
             </motion.div>
           )}
 
-          {mediaInfo && !isLoading && (
+          {mediaInfo && (
             <motion.div
               key={mediaInfo.id}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, scale: 0.98, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: -20 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="pb-32"
             >
               <MediaPreview info={mediaInfo} />
               <ConversionOptions
