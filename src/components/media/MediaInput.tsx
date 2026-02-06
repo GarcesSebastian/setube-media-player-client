@@ -84,7 +84,25 @@ export default function MediaInput({ onSelect, hasSelection }: MediaInputProps) 
     };
 
     return (
-        <section className={`flex flex-col items-center justify-center px-4 md:px-6 relative z-10 transition-all duration-700 ${hasSelection ? 'pt-8 pb-4' : 'pt-20 md:pt-32 pb-16 md:pb-24'}`}>
+        <section className={`flex flex-col items-center justify-center px-4 md:px-6 relative z-10 transition-all duration-700 ${hasSelection ? 'pt-4 pb-4' : 'pt-6 md:pt-24 pb-8 md:pb-16'}`}>
+            {!hasSelection && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center mb-8 md:mb-12 max-w-3xl"
+                >
+                    <div className="relative inline-block mb-4">
+                        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white">
+                            SETUBE
+                        </h1>
+                        <div className="absolute -inset-4 bg-gradient-to-r from-accent/20 via-purple-500/20 to-blue-500/20 blur-3xl -z-10 animate-pulse" />
+                    </div>
+                    <p className="text-sm md:text-base text-white/60 font-medium max-w-xl mx-auto">
+                        Extracción de medios de alta fidelidad. Descarga audio y video en la mejor calidad disponible.
+                    </p>
+                </motion.div>
+            )}
+
             <div className="w-full max-w-5xl relative" ref={resultsRef}>
                 <div className="relative group">
                     <motion.div
