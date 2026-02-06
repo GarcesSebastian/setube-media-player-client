@@ -92,13 +92,19 @@ export default function MediaInput({ onSelect, hasSelection }: MediaInputProps) 
                     className="text-center mb-8 md:mb-12 max-w-3xl"
                 >
                     <div className="relative inline-block mb-4">
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white">
-                            SETUBE
+                        <h1 className="text-4xl md:text-6xl font-black tracking-tight">
+                            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-600 bg-clip-text text-transparent">
+                                SETUBE
+                            </span>
                         </h1>
-                        <div className="absolute -inset-4 bg-gradient-to-r from-accent/20 via-purple-500/20 to-blue-500/20 blur-3xl -z-10 animate-pulse" />
+                        <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-600/20 blur-3xl -z-10 animate-pulse" />
                     </div>
                     <p className="text-sm md:text-base text-white/60 font-medium max-w-xl mx-auto">
-                        Extracción de medios de alta fidelidad. Descarga audio y video en la mejor calidad disponible.
+                        Extractor de videos de{" "}
+                        <span className="bg-gradient-to-r from-red-500 via-red-400 to-orange-500 bg-clip-text text-transparent font-bold">
+                            YouTube
+                        </span>
+                        {" "}de alta fidelidad. Descarga audio y video en la mejor calidad disponible.
                     </p>
                 </motion.div>
             )}
