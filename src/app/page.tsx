@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Header, Footer, HistorySidebar } from "@/components/layout";
 import { MediaInput, MediaPreview, ConversionOptions } from "@/components/media";
 import { AnimatePresence, motion } from "framer-motion";
 import { MediaResult, MediaInfo, getMediaInfo } from "@/controllers/media.controller";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { db } from "@/utils/database.utils";
 
-export default function Home() {
+function HomeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedResult, setSelectedResult] = useState<MediaResult | any | null>(null);
   const [mediaInfo, setMediaInfo] = useState<MediaInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -18,22 +21,23 @@ export default function Home() {
     db.init().catch(console.error);
   }, []);
 
-  const handleSelect = async (item: MediaResult | any) => {
-    setSelectedResult(item);
-    setMediaInfo(null);
+  const fetchVideoInfo = useCallback(async (videoId: string) => {
     setIsLoading(true);
+    setMediaInfo(null);
+    setSelectedResult({ video_id: videoId });
 
     try {
-      const info = await getMediaInfo(item.url);
+      const url = `https://www.youtube.com/watch?v=${videoId}`;
+      const info = await getMediaInfo(url);
 
       const combinedInfo = {
-        ...item,
         ...info,
-        id: info.id || item.video_id,
-        author: info.author || item.author
+        video_id: videoId,
+        id: info.id || videoId,
       };
 
       setMediaInfo(combinedInfo);
+      setSelectedResult(combinedInfo);
 
       db.addMetadata({
         videoId: combinedInfo.id,
@@ -44,20 +48,32 @@ export default function Home() {
         author: combinedInfo.author,
       }).catch(console.error);
     } catch (error) {
-      console.error("Error fetching media info:", error);
-      if (item.video_id) {
-        setMediaInfo({
-          ...item,
-          id: item.video_id,
-          formats: [
-            { format_id: "high", ext: "m4a", resolution: "High (256kbps)" },
-            { format_id: "1080", ext: "mp4", resolution: "1080p" }
-          ]
-        });
-      }
+      console.error("Error fetching video info from URL:", error);
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const v = searchParams.get("v");
+    if (v && (!selectedResult || selectedResult.video_id !== v)) {
+      fetchVideoInfo(v);
+    } else if (!v && selectedResult) {
+      setSelectedResult(null);
+      setMediaInfo(null);
+    }
+  }, [searchParams, fetchVideoInfo]);
+
+  const handleSelect = (item: MediaResult | any) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("v", item.video_id);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleReset = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("v");
+    router.replace(`?${params.toString()}`, { scroll: false });
   };
 
   const handleConversionComplete = (format: string, quality: string) => {
@@ -76,42 +92,66 @@ export default function Home() {
       <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 
       <div className="pt-20">
-        <MediaInput onSelect={handleSelect} hasSelection={!!selectedResult} />
+        <MediaInput
+          onSelect={handleSelect}
+          hasSelection={!!selectedResult}
+          onReset={handleReset}
+        />
 
         <AnimatePresence mode="wait">
-          {isLoading && !mediaInfo && (
+          {isLoading && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20 gap-4"
+              key="loader"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.05 }}
+              className="flex flex-col items-center justify-center py-24 gap-6"
             >
               <div className="relative">
-                <Loader2 className="text-accent animate-spin w-12 h-12" />
-                <div className="absolute inset-0 blur-xl bg-accent/20 animate-pulse" />
+                <div className="w-16 h-16 rounded-3xl bg-accent/10 flex items-center justify-center">
+                  <Loader2 className="text-accent animate-spin w-8 h-8" />
+                </div>
+                <div className="absolute inset-0 blur-2xl bg-accent/20 animate-pulse" />
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 animate-pulse">
-                Procesando metadatos...
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-accent animate-pulse">
+                Sincronizando Metadata Maestro
               </p>
             </motion.div>
           )}
 
-          {mediaInfo && (
+          {mediaInfo && !isLoading && (
             <motion.div
-              key={mediaInfo.id}
-              initial={{ opacity: 0, scale: 0.98, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: -20 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              key="process-flow"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="pb-32"
             >
+              <div className="max-w-6xl mx-auto px-4 mb-4">
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-2 text-white/20 hover:text-white transition-colors group"
+                >
+                  <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Nueva Búsqueda</span>
+                </button>
+              </div>
+
               <MediaPreview info={mediaInfo} />
-              <ConversionOptions
-                url={mediaInfo.url}
-                title={mediaInfo.title}
-                duration={mediaInfo.duration}
-                onConversionComplete={handleConversionComplete}
-              />
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <ConversionOptions
+                  url={mediaInfo.url}
+                  title={mediaInfo.title}
+                  duration={mediaInfo.duration}
+                  onConversionComplete={handleConversionComplete}
+                />
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -119,5 +159,13 @@ export default function Home() {
 
       <Footer />
     </main>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }

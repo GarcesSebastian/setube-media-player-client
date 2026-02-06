@@ -2,7 +2,15 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Clock, User, ExternalLink, Youtube } from "lucide-react";
+import {
+    Clock,
+    User,
+    Youtube,
+    Zap,
+    Share2,
+    Info,
+    ExternalLink
+} from "lucide-react";
 import { MediaInfo } from "@/controllers/media.controller";
 
 interface MediaPreviewProps {
@@ -11,88 +19,99 @@ interface MediaPreviewProps {
 
 export default function MediaPreview({ info }: MediaPreviewProps) {
     const formatDuration = (seconds: number) => {
-        const min = Math.floor(seconds / 60);
-        const sec = seconds % 60;
-        return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto px-4 mb-12">
-            <div className="relative group rounded-3xl overflow-hidden bg-[#0c0c0c] border border-white/5 shadow-2xl">
-                <div
-                    className="absolute inset-0 opacity-20 blur-[100px] pointer-events-none"
-                    style={{
-                        backgroundImage: `url(${info.thumbnail})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center'
-                    }}
-                />
+        <section className="w-full max-w-6xl mx-auto px-4 py-8">
+            <div className="flex flex-col lg:flex-row gap-8 items-stretch">
 
-                <div className="relative z-10 flex flex-col md:flex-row gap-8 p-6 md:p-10">
-                    <div className="w-full md:w-1/3 shrink-0">
-                        <div className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl border border-white/10 group-hover:scale-[1.02] transition-transform duration-500">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex-1 min-w-0"
+                >
+                    <div className="bg-[#0c0c0c] border border-white/5 rounded-[2.5rem] p-6 h-full flex flex-col gap-6">
+                        <div className="relative aspect-video rounded-[2rem] overflow-hidden shadow-2xl border border-white/5 group">
                             <img
                                 src={info.thumbnail}
                                 alt={info.title}
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                            <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md px-2 py-1 rounded-md border border-white/10 flex items-center gap-1.5">
-                                <Clock size={12} className="text-accent" />
-                                <span className="text-[10px] font-bold text-white/90">{formatDuration(info.duration)}</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                            <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+                                <Youtube className="text-red-500" size={16} />
+                                <span className="text-[10px] font-black uppercase tracking-widest text-white">YouTube Original</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4 px-2">
+                            <h2 className="text-2xl md:text-4xl font-black text-white leading-tight tracking-tight">
+                                {info.title}
+                            </h2>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                                    <User size={12} className="text-white/40" />
+                                    <span className="text-[11px] font-bold text-white/60">{info.author.name}</span>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                                    <Clock size={12} className="text-white/40" />
+                                    <span className="text-[11px] font-bold text-white/60">{formatDuration(info.duration)}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </motion.div>
 
-                    <div className="flex flex-col justify-center flex-1">
-                        <div className="flex items-center gap-2 mb-4">
-                            <div className="px-2 py-1 rounded bg-accent/10 border border-accent/20">
-                                <span className="text-[10px] font-bold text-accent uppercase tracking-widest">Metadata Lista</span>
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="w-full lg:w-[400px] flex flex-col gap-6"
+                >
+                    <div className="bg-[#0c0c0c] border border-white/5 rounded-[2.5rem] p-8 flex flex-col gap-6 h-full">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-accent">
+                                <Zap size={20} fill="currentColor" />
+                                <span className="text-xs font-black uppercase tracking-[0.2em]">Listo para Exportar</span>
                             </div>
-                            <Youtube size={16} className="text-white/20" />
+                            <h3 className="text-xl font-bold text-white">Opciones de Conversión</h3>
+                            <p className="text-sm text-white/30 leading-relaxed">
+                                Selecciona el formato y la resolución que prefieras. El proceso se realiza en tiempo real.
+                            </p>
                         </div>
 
-                        <h1 className="text-2xl md:text-4xl font-black text-white leading-tight mb-4 tracking-tight">
-                            {info.title}
-                        </h1>
-
-                        <div className="flex flex-wrap items-center gap-6 text-white/40">
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                                    <User size={14} className="text-accent" />
-                                </div>
-                                <div>
-                                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Creador</p>
-                                    <p className="text-sm font-bold text-white/70">{info.author.name}</p>
-                                </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col gap-2">
+                                <Info size={16} className="text-white/20" />
+                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Estado</span>
+                                <span className="text-xs font-bold text-green-500">Disponible</span>
                             </div>
-
-                            <div className="h-8 w-px bg-white/5 hidden md:block" />
-
-                            <div className="flex items-center gap-2.5">
-                                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                                    <ExternalLink size={14} className="text-accent" />
-                                </div>
-                                <div>
-                                    <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Fuente</p>
-                                    <a
-                                        href={info.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-sm font-bold text-white/70 hover:text-accent transition-colors underline decoration-white/10 underline-offset-4"
-                                    >
-                                        Ver en YouTube
-                                    </a>
-                                </div>
+                            <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col gap-2">
+                                <Share2 size={16} className="text-white/20" />
+                                <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Origen</span>
+                                <span className="text-xs font-bold text-white/60">YouTube</span>
                             </div>
                         </div>
 
-                        <div className="mt-8 h-px w-full bg-gradient-to-r from-accent/50 via-accent/5 to-transparent relative">
-                            <div className="absolute -top-[1.5px] left-0 w-1 h-1 rounded-full bg-accent shadow-[0_0_10px_#ff0000]" />
+                        <div className="mt-auto pt-6 border-t border-white/5 flex flex-col gap-4">
+                            <a
+                                href={info.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <ExternalLink size={18} className="text-white/40 group-hover:text-accent transition-colors" />
+                                    <span className="text-sm font-bold text-white/60 group-hover:text-white transition-colors">Ver en YouTube</span>
+                                </div>
+                            </a>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
-        </div>
+        </section>
     );
 }
