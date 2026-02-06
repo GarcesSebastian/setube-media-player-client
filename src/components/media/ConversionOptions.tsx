@@ -23,9 +23,10 @@ interface ConversionOptionsProps {
     url: string;
     title: string;
     duration: number;
+    onConversionComplete?: (format: string, quality: string) => void;
 }
 
-export default function ConversionOptions({ url, title, duration }: ConversionOptionsProps) {
+export default function ConversionOptions({ url, title, duration, onConversionComplete }: ConversionOptionsProps) {
     const [downloadingId, setDownloadingId] = useState<string | null>(null);
     const [completedIds, setCompletedIds] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<"audio" | "video">("audio");
@@ -60,7 +61,7 @@ export default function ConversionOptions({ url, title, duration }: ConversionOp
             const localUrl = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = localUrl;
-            const extension = format.type === "audio" ? "mp3" : "mp4";
+            const extension = format.type === "audio" ? "m4a" : "mp4";
             link.setAttribute("download", `${title}.${extension}`);
             document.body.appendChild(link);
             link.click();
@@ -68,6 +69,8 @@ export default function ConversionOptions({ url, title, duration }: ConversionOp
             window.URL.revokeObjectURL(localUrl);
 
             setCompletedIds(prev => [...prev, id]);
+
+            onConversionComplete?.(format.type === "audio" ? "mp3" : "mp4", format.quality);
         } catch (error) {
             console.error("Error:", error);
         } finally {

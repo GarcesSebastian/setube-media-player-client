@@ -1,16 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { Header, Footer } from "@/components/layout";
+import { useState, useEffect } from "react";
+import { Header, Footer, HistorySidebar } from "@/components/layout";
 import { MediaInput, MediaPreview, ConversionOptions } from "@/components/media";
 import { AnimatePresence, motion } from "framer-motion";
 import { MediaResult, MediaInfo, getMediaInfo } from "@/controllers/media.controller";
 import { Loader2 } from "lucide-react";
+import { db } from "@/utils/database.utils";
 
 export default function Home() {
   const [selectedResult, setSelectedResult] = useState<MediaResult | null>(null);
   const [mediaInfo, setMediaInfo] = useState<MediaInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  useEffect(() => {
+    db.init().catch(console.error);
+  }, []);
 
   const handleSelect = async (item: MediaResult) => {
     setSelectedResult(item);
@@ -20,6 +26,15 @@ export default function Home() {
     try {
       const info = await getMediaInfo(item.url);
       setMediaInfo(info);
+
+      db.addMetadata({
+        videoId: info.id,
+        url: info.url,
+        title: info.title,
+        duration: info.duration,
+        thumbnail: info.thumbnail,
+        author: info.author,
+      }).catch(console.error);
     } catch (error) {
       console.error("Error fetching media info:", error);
     } finally {
@@ -27,9 +42,21 @@ export default function Home() {
     }
   };
 
+  const handleConversionComplete = (format: string, quality: string) => {
+    if (!mediaInfo) return;
+
+    db.addConversion({
+      videoId: mediaInfo.id,
+      title: mediaInfo.title,
+      format,
+      quality,
+    }).catch(console.error);
+  };
+
   return (
-    <main className="min-h-screen relative pb-32">
-      <Header />
+    <main className="min-h-screen relative pb-20">
+      <Header onHistoryClick={() => setIsHistoryOpen(true)} />
+      <HistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 
       <div className="pt-20">
         <MediaInput onSelect={handleSelect} hasSelection={!!selectedResult} />
@@ -65,6 +92,7 @@ export default function Home() {
                 url={mediaInfo.url}
                 title={mediaInfo.title}
                 duration={mediaInfo.duration}
+                onConversionComplete={handleConversionComplete}
               />
             </motion.div>
           )}

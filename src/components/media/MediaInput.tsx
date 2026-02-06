@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search as SearchIcon, Loader2, PlayCircle, User, Search, ListFilter, Download } from "lucide-react";
 import { searchMedia, MediaResult } from "@/controllers/media.controller";
+import { db } from "@/utils/database.utils";
 
 interface MediaInputProps {
     onSelect: (item: MediaResult) => void;
@@ -32,6 +33,8 @@ export default function MediaInput({ onSelect, hasSelection }: MediaInputProps) 
         try {
             const data = await searchMedia(searchTerm);
             setResults(data);
+
+            db.addSearch(searchTerm, data).catch(console.error);
         } catch (error) {
             console.error("Error de búsqueda:", error);
         } finally {
@@ -81,17 +84,17 @@ export default function MediaInput({ onSelect, hasSelection }: MediaInputProps) 
     };
 
     return (
-        <section className={`flex flex-col items-center justify-center px-4 md:px-6 relative z-50 transition-all duration-700 ${hasSelection ? 'pt-8 pb-4' : 'pt-20 md:pt-32 pb-16 md:pb-24'}`}>
+        <section className={`flex flex-col items-center justify-center px-4 md:px-6 relative z-10 transition-all duration-700 ${hasSelection ? 'pt-8 pb-4' : 'pt-20 md:pt-32 pb-16 md:pb-24'}`}>
             <div className="w-full max-w-5xl relative" ref={resultsRef}>
                 <div className="relative group">
                     <motion.div
                         animate={{
                             scale: isFocused ? 1.01 : 1,
-                            opacity: isFocused ? 1 : 0.8
+                            opacity: 1
                         }}
                         className="relative flex items-center transition-all duration-500"
                     >
-                        <div className={`absolute left-0 transition-all duration-300 ${isFocused ? 'text-accent opacity-100' : 'text-white/20 opacity-50'}`}>
+                        <div className={`absolute left-0 transition-all duration-300 ${isFocused ? 'text-accent opacity-100' : 'text-white/60 opacity-100'}`}>
                             {isLoading ? (
                                 <Loader2 className="animate-spin w-5 h-5 md:w-6 md:h-6" />
                             ) : (
@@ -106,7 +109,7 @@ export default function MediaInput({ onSelect, hasSelection }: MediaInputProps) 
                                 if (results.length > 0) setShowResults(true);
                             }}
                             placeholder="¿Qué estás buscando?"
-                            className="w-full bg-transparent border-none text-xl md:text-3xl font-medium pl-8 md:pl-12 py-3 md:py-4 text-white placeholder:text-white/10 outline-none transition-all"
+                            className="w-full bg-transparent border-none text-xl md:text-3xl font-medium pl-8 md:pl-12 py-3 md:py-4 text-white placeholder:text-white/40 outline-none transition-all"
                         />
 
                         <div className="absolute bottom-0 left-0 right-0 h-px bg-white/10 overflow-hidden">

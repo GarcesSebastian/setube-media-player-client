@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Github, Twitter, Disc as Discord } from "lucide-react";
+import { Github } from "lucide-react";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="fixed bottom-0 left-0 right-0 border-t border-white/5 bg-black/60 backdrop-blur-xl z-[100]">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                <div className="flex items-center gap-6">
+        <footer className="fixed bottom-0 left-0 right-0 border-t border-white/5 bg-black/80 backdrop-blur-xl z-20">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 h-14 flex items-center justify-between">
+                <div className="flex items-center gap-4 md:gap-6">
                     <span className="text-sm font-bold tracking-tighter text-white/90">SETUBE</span>
                     <div className="hidden md:flex items-center gap-4 border-l border-white/10 pl-6">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-white/30">
@@ -18,23 +18,15 @@ export default function Footer() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="flex gap-5">
-                        <Link href="#" className="text-white/30 hover:text-accent transition-colors">
-                            <Twitter size={16} />
-                        </Link>
-                        <Link href="#" className="text-white/30 hover:text-accent transition-colors">
-                            <Github size={16} />
-                        </Link>
-                        <Link href="#" className="text-white/30 hover:text-accent transition-colors">
-                            <Discord size={16} />
-                        </Link>
-                    </div>
-                    <div className="hidden sm:flex items-center gap-4 border-l border-white/10 pl-6">
-                        <Link href="/terms" className="text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white transition-colors">Terms</Link>
-                        <Link href="/privacy" className="text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white transition-colors">Privacy</Link>
-                    </div>
-                </div>
+                <Link
+                    href="https://github.com/GarcesSebastian"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-all group"
+                >
+                    <Github size={18} className="group-hover:scale-110 transition-transform" />
+                    <span className="hidden sm:block text-xs font-bold">GitHub</span>
+                </Link>
             </div>
         </footer>
     );
