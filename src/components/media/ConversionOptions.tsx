@@ -11,35 +11,39 @@ import {
     Sparkles
 } from "lucide-react";
 
-const FORMATS = [
-    { id: "mp3-320", label: "Master Audio", sub: "320kbps / MP3", quality: "high", type: "audio", icon: Music, color: "text-purple-400" },
-    { id: "mp3-128", label: "Estándar Audio", sub: "128kbps / MP3", quality: "medium", type: "audio", icon: Music, color: "text-purple-300" },
-    { id: "mp4-1080", label: "Ultra Video", sub: "1080p / High-Res", quality: "1080", type: "video", icon: Video, color: "text-blue-400" },
-    { id: "mp4-720", label: "HD Video", sub: "720p / Smooth", quality: "720", type: "video", icon: Video, color: "text-blue-300" },
-];
-
 interface ConversionOptionsProps {
     url: string;
     title: string;
     duration: number;
+    formats?: any[];
     onConversionComplete?: (format: string, quality: string) => void;
 }
 
-export default function ConversionOptions({ url, title, duration, onConversionComplete }: ConversionOptionsProps) {
+export default function ConversionOptions({ url, title, duration, formats, onConversionComplete }: ConversionOptionsProps) {
     const [downloadingId, setDownloadingId] = useState<string | null>(null);
     const [completedIds, setCompletedIds] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<"audio" | "video">("audio");
 
-    const handleDownload = async (id: string) => {
+    const dynamicFormats = (formats || []).map(f => {
+        const isAudio = f.ext === 'm4a' || f.format_id === 'high' || f.format_id === 'medium';
+        return {
+            id: f.format_id,
+            label: f.resolution,
+            sub: isAudio ? (f.format_id === 'high' ? '320kbps / MP3' : '128kbps / MP3') : `${f.resolution.split('p')[0]}p / Multi-Channel`,
+            quality: f.format_id,
+            type: isAudio ? 'audio' : 'video' as "audio" | "video",
+            icon: isAudio ? Music : Video,
+            color: isAudio ? 'text-purple-400' : 'text-blue-400'
+        };
+    });
+
+    const handleDownload = async (id: string, type: "audio" | "video", quality: string) => {
         if (downloadingId) return;
 
         setDownloadingId(id);
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
             const downloadUrl = `${apiUrl}/media/download`;
-
-            const format = FORMATS.find(f => f.id === id);
-            if (!format) throw new Error("Formato no encontrado");
 
             const response = await fetch(downloadUrl, {
                 method: "POST",
@@ -48,8 +52,8 @@ export default function ConversionOptions({ url, title, duration, onConversionCo
                 },
                 body: JSON.stringify({
                     url,
-                    format: format.type === "audio" ? "mp3" : "mp4",
-                    quality: format.quality,
+                    format: type === "audio" ? "mp3" : "mp4",
+                    quality: quality,
                 }),
             });
 
@@ -59,7 +63,7 @@ export default function ConversionOptions({ url, title, duration, onConversionCo
             const localUrl = window.URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = localUrl;
-            const extension = format.type === "audio" ? "m4a" : "mp4";
+            const extension = type === "audio" ? "mp3" : "mp4";
             link.setAttribute("download", `${title}.${extension}`);
             document.body.appendChild(link);
             link.click();
@@ -67,7 +71,7 @@ export default function ConversionOptions({ url, title, duration, onConversionCo
             window.URL.revokeObjectURL(localUrl);
 
             setCompletedIds(prev => [...prev, id]);
-            onConversionComplete?.(format.type === "audio" ? "mp3" : "mp4", format.quality);
+            onConversionComplete?.(type === "audio" ? "mp3" : "mp4", quality);
         } catch (error) {
             console.error("Error:", error);
         } finally {
@@ -75,7 +79,7 @@ export default function ConversionOptions({ url, title, duration, onConversionCo
         }
     };
 
-    const filteredFormats = FORMATS.filter(f => f.type === activeTab);
+    const filteredFormats = dynamicFormats.filter(f => f.type === activeTab);
 
     return (
         <div className="w-full max-w-7xl mx-auto px-4 pb-24">
@@ -146,7 +150,7 @@ export default function ConversionOptions({ url, title, duration, onConversionCo
                                         </div>
 
                                         <button
-                                            onClick={() => handleDownload(format.id)}
+                                            onClick={() => handleDownload(format.id, format.type, format.quality)}
                                             disabled={isDownloading}
                                             className={`relative h-12 md:h-14 w-full sm:w-auto min-w-0 sm:min-w-[140px] rounded-2xl flex items-center justify-center gap-2 px-6 font-black uppercase tracking-widest text-[10px] md:text-xs transition-all duration-500 ${isCompleted
                                                 ? "bg-green-500/10 text-green-500 border border-green-500/20"

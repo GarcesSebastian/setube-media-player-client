@@ -158,6 +158,7 @@ function HomeContent() {
                   url={mediaInfo.url}
                   title={mediaInfo.title}
                   duration={mediaInfo.duration}
+                  formats={mediaInfo.formats}
                   onConversionComplete={handleConversionComplete}
                 />
               </motion.div>
