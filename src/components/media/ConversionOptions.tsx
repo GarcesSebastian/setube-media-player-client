@@ -78,7 +78,7 @@ export default function ConversionOptions({ url, title, duration, onConversionCo
     const filteredFormats = FORMATS.filter(f => f.type === activeTab);
 
     return (
-        <div className="w-full max-w-6xl mx-auto px-4 pb-24">
+        <div className="w-full max-w-7xl mx-auto px-4 pb-24">
             <div className="bg-[#0c0c0c] border border-white/5 rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 overflow-hidden relative">
 
                 <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-accent/5 blur-[120px] rounded-full pointer-events-none" />

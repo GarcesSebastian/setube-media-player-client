@@ -25,7 +25,7 @@ export default function MediaPreview({ info }: MediaPreviewProps) {
     };
 
     return (
-        <section className="w-full max-w-6xl mx-auto px-4 py-8">
+        <section className="w-full max-w-7xl mx-auto px-4 py-8">
             <div className="flex flex-col lg:flex-row gap-8 items-stretch">
 
                 <motion.div

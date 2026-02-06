@@ -137,7 +137,7 @@ function HomeContent() {
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className="pb-32"
             >
-              <div className="max-w-6xl mx-auto px-4 mb-4">
+              <div className="max-w-7xl mx-auto px-4 mb-4">
                 <button
                   onClick={handleReset}
                   className="flex items-center gap-2 text-white/20 hover:text-white transition-colors group"

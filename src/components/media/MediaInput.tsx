@@ -165,7 +165,7 @@ export default function MediaInput({ onSelect, hasSelection, onReset }: MediaInp
                 </motion.div>
             )}
 
-            <div className="w-full max-w-5xl relative">
+            <div className="w-full max-w-7xl relative">
                 <div className={`relative group transition-all duration-500 ${hasSelection ? 'mb-4' : 'mb-12'}`}>
                     <motion.div
                         layout
